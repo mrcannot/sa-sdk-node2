@@ -2,7 +2,7 @@
   "name": "sa-sdk-node2",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT",
+  "license": "Apache 2.0",
   "scripts": {
     "start": "ts-node-dev --respawn --transpileOnly src/index.ts",
     "style:prettier": "prettier --write \"src/**/*.ts\"",
