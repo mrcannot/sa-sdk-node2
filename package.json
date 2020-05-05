@@ -1,0 +1,20 @@
+{
+  "name": "sa-sdk-node2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node-dev --respawn --transpileOnly src/index.ts",
+    "style:prettier": "prettier --write \"src/**/*.ts\"",
+    "style:lint": "tslint -p tsconfig.json -c tslint.json",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^13.13.4",
+    "prettier": "^2.0.5",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "tslint": "^6.1.2",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.8.3"
+  }
+}
