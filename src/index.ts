@@ -1,1 +1,2 @@
-console.log('Hello TypeScript');
+import { Sensors } from './sensors';
+export default Sensors;
