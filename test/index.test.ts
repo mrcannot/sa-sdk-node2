@@ -1,7 +1,11 @@
-import Sensors from '../src';
+import Sensors from '../src/index';
 import { DebugConsumer, IDebugOption } from '../src/consumer';
 const debugOption: IDebugOption = {
-  serverUrl: '数据接收地址'
+  serverUrl: ''
 };
+
 Sensors.getInstance().init(new DebugConsumer(debugOption));
-Sensors.getInstance().track();
+
+for (let i = 0; i < 10; i++) {
+  Sensors.getInstance().track('111', true, 'aaa');
+}

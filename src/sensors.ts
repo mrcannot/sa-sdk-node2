@@ -1,4 +1,5 @@
 import { IConsumer } from './consumer';
+import { trackEvent } from './utils';
 
 export class Sensors {
   private static instance: Sensors;
@@ -20,8 +21,9 @@ export class Sensors {
     this.consumer = consumer;
   }
 
-  public async track() {
+  public async track(distinctId: string, isLoginId: boolean, eventName: string, properties?: any) {
     console.log('track');
-    this.consumer.send();
+    let event = trackEvent(distinctId, isLoginId, eventName, properties);
+    this.consumer.send(event);
   }
 }

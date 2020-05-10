@@ -6,11 +6,13 @@
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": true,
     "noImplicitAny": true,
     "declaration": true,
+    "esModuleInterop": true,
     "typeRoots": ["./node_modules/@types/"]
   },
   "include": ["./src/**/*", "./test/**/*"],
