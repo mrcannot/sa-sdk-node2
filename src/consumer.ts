@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 import formUrlEncoded from 'form-urlencoded';
 
 export interface IConsumer {
-  send(message: TSMap<string, object>): void;
+  send(message: any): void;
   flush(): void;
   close(): void;
 }
@@ -20,7 +20,7 @@ export class DebugConsumer implements IConsumer {
     this.option = option;
   }
 
-  async send(message: TSMap<string, object>): Promise<void> {
+  async send(message: any): Promise<void> {
     console.log('触发事件');
     console.log(this.option.serverUrl);
     const messages = Array.isArray(message) ? message : [message];

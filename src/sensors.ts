@@ -26,4 +26,30 @@ export class Sensors {
     let event = trackEvent(distinctId, isLoginId, eventName, properties);
     this.consumer.send(event);
   }
+
+  public trackSignUp() {}
+
+  public profileSet() {}
+
+  public profileSetOnce() {}
+
+  public profileIncrement() {}
+
+  public profileAppend() {}
+
+  public profileUnset() {}
+
+  public profileDelete() {}
+
+  public itemSet() {}
+
+  public itemDelete() {}
+
+  public flush(): void {
+    this.consumer.flush();
+  }
+
+  public shutdown(): void {
+    this.consumer.close();
+  }
 }

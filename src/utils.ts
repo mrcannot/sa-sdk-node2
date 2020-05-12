@@ -1,8 +1,8 @@
 import path = require('path');
 import * as _ from 'lodash';
-import { TSMap } from 'typescript-map';
 
 import { version } from '../package.json';
+import { Lib, Track } from './properties';
 
 /**
  * 生成随机的 _track_id
@@ -11,21 +11,27 @@ function trackId(): number {
   return parseInt((Math.random() * (9999999999 - 999999999 + 1) + 999999999).toString(), 10);
 }
 
-export function trackEvent(distinctId: string, isLoginId: boolean, eventName: string, properties?: any): TSMap<string, any> {
+export function trackEvent(distinctId: string, isLoginId: boolean, eventName: string, properties?: any): any {
   assertKey('Distinct Id', distinctId);
-  const data = new TSMap<string, any>();
-  data.set('_track_id', trackId());
-  data.set('type', 'track');
-  data.set('event', eventName);
-  data.set('time', _.now());
-  data.set('distinct_id', distinctId);
-  const p: TSMap<string, any> = new TSMap<string, object>();
-  p.set('$lib', 'Node');
-  p.set('$lib_version', version);
-  p.set('$is_login_id', isLoginId);
-  data.set('properties', p);
-  data.set('lib', { $lib: 'Node', $lib_method: 'code', $lib_version: version, $lib_detail: 'O' });
-  return data;
+  const track = new Track();
+  track._track_id = trackId();
+  track.type = 'track';
+  track.event = eventName;
+  track.distinct_id = distinctId;
+  track.time = _.now();
+  const lib = new Lib();
+  lib.$lib = 'Node';
+  lib.$lib_method = 'code';
+  lib.$lib_version = version;
+  lib.$lib_detail = 'lib_detail';
+  const libObject = removeUndefined(lib);
+  track.lib = libObject;
+  const p = {
+    $is_login_id: isLoginId
+  };
+  const publicProterties = {};
+  track.properties = assign(lib, p, properties, publicProterties);
+  return removeUndefined(track);
 }
 
 function assertKey(type: string, key: string) {
@@ -94,4 +100,12 @@ function getCallerFileNameAndLine() {
   } else {
     return '[-]';
   }
+}
+
+export function removeUndefined(obj: any): any {
+  return _.pickBy(obj, (v) => !_.isUndefined(v));
+}
+
+export function assign(object: any, ...otherArgs: any[]): any {
+  return _.assign(object, ...otherArgs);
 }
