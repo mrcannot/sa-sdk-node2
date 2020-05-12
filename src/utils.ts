@@ -57,7 +57,7 @@ function getLibDetail(callerIndex: number): string {
 }
 
 const CALL_INFO_REGEX = /^\s*at ((((\w+)\.)?(\w+|<anonymous>) \(((.+):(\d+):(\d+)|(native))\))|(.+):(\d+):(\d+))$/;
-export function parseCallInfo(text: any) {
+export function parseCallInfo(text: any): any {
   const matches = CALL_INFO_REGEX.exec(text);
   console.log(matches);
   if (matches == null) {

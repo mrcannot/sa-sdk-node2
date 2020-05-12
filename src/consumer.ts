@@ -1,8 +1,8 @@
-import { TSMap } from 'typescript-map';
 import { zlib } from 'mz';
 import fetch from 'node-fetch';
 import formUrlEncoded from 'form-urlencoded';
-
+import { Logger, format, LoggerOptions, transports, createLogger } from 'winston';
+import DailyRotateFile, { DailyRotateFileTransportOptions } from 'winston-daily-rotate-file';
 export interface IConsumer {
   send(message: any): void;
   flush(): void;
@@ -46,6 +46,43 @@ export class DebugConsumer implements IConsumer {
       timeout: 3000
     });
     console.log(response.status);
+  }
+  flush(): void {
+    throw new Error('Method not implemented.');
+  }
+  close(): void {
+    throw new Error('Method not implemented.');
+  }
+}
+
+export class LoggingConsumer implements IConsumer {
+  private logger: Logger;
+
+  constructor(path: string) {
+    const filePrefix = '/service.log.';
+    const myFormat = format.printf(({ message }) => message);
+    const saLogConfiguration: LoggerOptions = {
+      transports: [
+        new DailyRotateFile({
+          filename: `${path + filePrefix}%DATE%`,
+          datePattern: 'YYYYMMDD',
+          format: myFormat,
+          level: 'info',
+          zippedArchive: false
+        })
+      ]
+    };
+    this.logger = createLogger(saLogConfiguration);
+  }
+
+  send(message: any): void {
+    let messageString = JSON.stringify(message);
+    console.log(messageString);
+    try {
+      this.logger.info(messageString);
+    } catch (e) {
+      console.error(e);
+    }
   }
   flush(): void {
     throw new Error('Method not implemented.');

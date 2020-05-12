@@ -8,3 +8,4 @@ dist
 test.sh
 *.lock
 package-lock.json
+test/service.log.*
