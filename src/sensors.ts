@@ -1,55 +1,72 @@
-import { IConsumer } from './consumer';
-import { trackEvent } from './utils';
+import { IConsumer } from './consumer'
+import { trackEvent } from './utils'
 
 export class Sensors {
-  private static instance: Sensors;
+  private static instance: Sensors
 
-  private consumer: IConsumer;
+  private consumer!: IConsumer
 
   public static getInstance() {
     if (!Sensors.instance) {
-      Sensors.instance = new Sensors();
+      Sensors.instance = new Sensors()
     }
-    return Sensors.instance;
+    return Sensors.instance
   }
 
   public constructor() {
-    console.log('init sensors');
+    console.log('init sensors')
   }
 
   public init(consumer: IConsumer) {
-    this.consumer = consumer;
+    this.consumer = consumer
   }
 
-  public async track(distinctId: string, isLoginId: boolean, eventName: string, properties?: any) {
-    console.log('track');
-    let event = trackEvent(distinctId, isLoginId, eventName, properties);
-    this.consumer.send(event);
+  public track(distinctId: string, isLoginId: boolean, eventName: string, properties?: any) {
+    let event = trackEvent('tract', distinctId, isLoginId, eventName, properties)
+    this.consumer.send(event)
   }
 
   public trackSignUp() {}
 
-  public profileSet() {}
+  public profileSet(distinctId: string, isLoginId: boolean, properties?: any) {
+    let profile = trackEvent('profile_set', distinctId, isLoginId, undefined, properties)
+    this.consumer.send(profile)
+  }
 
-  public profileSetOnce() {}
+  public profileSetOnce(distinctId: string, isLoginId: boolean, properties?: any) {
+    let profile = trackEvent('profile_set', distinctId, isLoginId, undefined, properties)
+    this.consumer.send(profile)
+  }
 
-  public profileIncrement() {}
+  public profileIncrement(distinctId: string, isLoginId: boolean, properties?: any) {
+    let profile = trackEvent('profile_set', distinctId, isLoginId, undefined, properties)
+    this.consumer.send(profile)
+  }
 
-  public profileAppend() {}
+  public profileAppend(distinctId: string, isLoginId: boolean, properties?: any) {
+    let profile = trackEvent('profile_set', distinctId, isLoginId, undefined, properties)
+    this.consumer.send(profile)
+  }
 
-  public profileUnset() {}
+  public profileUnset(distinctId: string, isLoginId: boolean, properties?: any) {
+    let profile = trackEvent('profile_set', distinctId, isLoginId, undefined, properties)
+    this.consumer.send(profile)
+  }
 
-  public profileDelete() {}
+  public profileDelete(distinctId: string, isLoginId: boolean, properties?: any) {
+    let profile = trackEvent('profile_set', distinctId, isLoginId, undefined, properties)
+    this.consumer.send(profile)
+  }
 
   public itemSet() {}
 
   public itemDelete() {}
 
   public flush(): void {
-    this.consumer.flush();
+    this.consumer.flush()
   }
 
   public shutdown(): void {
-    this.consumer.close();
+    this.consumer.close()
   }
 }

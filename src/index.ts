@@ -1,2 +1,2 @@
-import { Sensors } from './sensors';
-export default Sensors;
+export { Sensors } from './sensors'
+export { DebugConsumer, LoggingConsumer, DebugOption } from './consumer'
