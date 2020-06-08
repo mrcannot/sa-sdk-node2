@@ -4,7 +4,7 @@ import formUrlEncoded from 'form-urlencoded'
 import { Logger, format, LoggerOptions, createLogger } from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 export interface IConsumer {
-  send(message: any): void
+  send(message: any): Promise<any>
   flush(): void
   close(): void
 }
@@ -20,9 +20,7 @@ export class DebugConsumer implements IConsumer {
     this.option = option
   }
 
-  async send(message: any): Promise<void> {
-    console.log('触发事件')
-    console.log(this.option.serverUrl)
+  async send(message: any): Promise<any> {
     const messages = Array.isArray(message) ? message : [message]
     let messageString = JSON.stringify(messages)
     console.log(messageString)
@@ -39,13 +37,21 @@ export class DebugConsumer implements IConsumer {
       gzip: 1
     })
     console.log(body)
-    const response = await fetch(this.option.serverUrl, {
-      method: 'POST',
-      headers,
-      body,
-      timeout: 3000
+    return new Promise((resolve, reject) => {
+      fetch(this.option.serverUrl, {
+        method: 'POST',
+        headers,
+        body,
+        timeout: 3000
+      })
+        .then((response) => {
+          resolve(response)
+        })
+        .catch((err) => {
+          console.log(err)
+          reject(message)
+        })
     })
-    console.log(response.status)
   }
   flush(): void {
     throw new Error('Method not implemented.')
@@ -78,14 +84,30 @@ export class LoggingConsumer implements IConsumer {
     this.logger = createLogger(saLogConfiguration)
   }
 
-  send(message: any): void {
-    let messageString = JSON.stringify(message)
-    console.log(messageString)
-    try {
-      this.logger.info(messageString)
-    } catch (e) {
-      console.error(e)
-    }
+  send(message: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let messageString = JSON.stringify(message)
+      console.log(messageString)
+      try {
+        this.logger.info(messageString)
+        resolve('success')
+      } catch (e) {
+        console.error(e)
+        reject(e)
+      }
+    })
+  }
+  flush(): void {
+    throw new Error('Method not implemented.')
+  }
+  close(): void {
+    throw new Error('Method not implemented.')
+  }
+}
+
+export class NWConsumer implements IConsumer {
+  send(message: any): Promise<any> {
+    throw new Error('Method not implemented.')
   }
   flush(): void {
     throw new Error('Method not implemented.')

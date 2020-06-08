@@ -4,8 +4,10 @@ export class Track {
   type!: string
   time!: number
   event!: string
+  project?: string
   // tslint:disable-next-line:variable-name
   distinct_id!: string
+  originalId?:string
   lib!: object
   properties!: object
 }
