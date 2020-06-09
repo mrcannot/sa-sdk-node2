@@ -1,8 +1,10 @@
+import * as _ from 'lodash'
 import { zlib } from 'mz'
 import fetch from 'node-fetch'
 import formUrlEncoded from 'form-urlencoded'
 import { Logger, format, LoggerOptions, createLogger } from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
+import { DBCache } from './db'
 export interface IConsumer {
   send(message: any): Promise<any>
   flush(): void
@@ -25,7 +27,6 @@ export class DebugConsumer implements IConsumer {
     let messageString = JSON.stringify(messages)
     console.log(messageString)
     messageString = (await zlib.gzip(Buffer.from(messageString, 'utf-8'))).toString('base64')
-    console.log(messageString)
 
     const headers = {
       'User-Agent': 'SensorsAnalytics Node SDK',
@@ -42,7 +43,7 @@ export class DebugConsumer implements IConsumer {
         method: 'POST',
         headers,
         body,
-        timeout: 3000
+        timeout: 10000
       })
         .then((response) => {
           resolve(response)
@@ -53,12 +54,8 @@ export class DebugConsumer implements IConsumer {
         })
     })
   }
-  flush(): void {
-    throw new Error('Method not implemented.')
-  }
-  close(): void {
-    throw new Error('Method not implemented.')
-  }
+  flush(): void {}
+  close(): void {}
 }
 
 export class LoggingConsumer implements IConsumer {
@@ -87,32 +84,73 @@ export class LoggingConsumer implements IConsumer {
   send(message: any): Promise<any> {
     return new Promise((resolve, reject) => {
       let messageString = JSON.stringify(message)
-      console.log(messageString)
       try {
         this.logger.info(messageString)
-        resolve('success')
+        resolve(messageString)
       } catch (e) {
         console.error(e)
         reject(e)
       }
     })
   }
-  flush(): void {
-    throw new Error('Method not implemented.')
-  }
-  close(): void {
-    throw new Error('Method not implemented.')
-  }
+  flush(): void {}
+  close(): void {}
+}
+
+export class NWOption {
+  serverUrl!: string
+  cachePath?: string
 }
 
 export class NWConsumer implements IConsumer {
-  send(message: any): Promise<any> {
-    throw new Error('Method not implemented.')
+  private option: NWOption
+  private db: DBCache
+
+  constructor(option: NWOption) {
+    this.option = option
+    this.db = new DBCache(option.cachePath)
+    new Promise<any>(() => {
+      this.db.uploadCache((message) => {
+        this.send(message)
+      })
+    })
   }
-  flush(): void {
-    throw new Error('Method not implemented.')
+
+  async send(message: any): Promise<any> {
+    this.db.cacheLog(JSON.stringify(message))
+    const messages = Array.isArray(message) ? message : [message]
+    let messageString = JSON.stringify(messages)
+    messageString = (await zlib.gzip(Buffer.from(messageString, 'utf-8'))).toString('base64')
+
+    const headers = {
+      'User-Agent': 'SensorsAnalytics Node SDK',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Dry-Run': 'false'
+    }
+    const body = formUrlEncoded({
+      data_list: messageString,
+      gzip: 1
+    })
+    return new Promise((resolve, reject) => {
+      fetch(this.option.serverUrl, {
+        method: 'POST',
+        headers,
+        body,
+        timeout: 10000
+      })
+        .then((response) => {
+          if (response.status > 300) {
+            this.db.cacheLog(JSON.stringify(message))
+          }
+          resolve(response)
+        })
+        .catch((err) => {
+          console.log(err)
+          this.db.cacheLog(JSON.stringify(message))
+          reject(message)
+        })
+    })
   }
-  close(): void {
-    throw new Error('Method not implemented.')
-  }
+  flush(): void {}
+  close(): void {}
 }

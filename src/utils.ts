@@ -16,6 +16,7 @@ function trackId(): number {
 }
 
 export function trackEvent(
+  allowReNameOption: boolean,
   type: string,
   distinctId: string,
   isLoginId: boolean,
@@ -27,6 +28,9 @@ export function trackEvent(
   track._track_id = trackId()
   track.type = type
   if (eventName) {
+    if (allowReNameOption) {
+      eventName = pascal2Snake(eventName)
+    }
     track.event = eventName
   }
   track.distinct_id = distinctId
@@ -49,11 +53,15 @@ export function trackEvent(
   }
   const libObject = removeUndefined(getLibInfo())
   track.lib = libObject
-  const p = {
-    $is_login_id: isLoginId
-  }
   const publicProterties = {}
-  track.properties = assign(getLibInfo(), p, properties, publicProterties)
+  if (allowReNameOption) {
+    properties = translateKeys(properties)
+  }
+  if (_.startsWith(type, 'profile_')) {
+    track.properties = assign(properties, { $is_login_id: isLoginId }, publicProterties)
+  } else {
+    track.properties = assign(getLibInfo(), properties, { $is_login_id: isLoginId }, publicProterties)
+  }
   return removeUndefined(track)
 }
 
@@ -179,4 +187,28 @@ export function removeUndefined(obj: any): any {
  */
 export function assign(object: any, ...otherArgs: any[]): any {
   return _.assign(object, ...otherArgs)
+}
+
+// const UPPER_CASE_LETTER = /([A-Z])/g
+export function pascal2Snake(text: string): string {
+  // const reg = new RegExp('^[A-Z_]+$')
+  // if (text == null || text === '$SignUp' || reg.test(text)) {
+  //   return text
+  // }
+  // return text.replace(UPPER_CASE_LETTER, (match, letter) => `_${letter.toLowerCase()}`)
+  return _.snakeCase(text)
+}
+
+export function translateKeys(properties: object): any {
+  return _cleanUpObjectKeys(properties)
+}
+
+function _cleanUpObjectKeys(data: any) {
+  let resultObject: any = {}
+  _.mapKeys(data, (value, key) => {
+    const newKey = _.snakeCase(_.trim(key))
+    console.log(newKey)
+    resultObject[newKey] = value
+  })
+  return resultObject
 }

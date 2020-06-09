@@ -1,2 +1,2 @@
 export { Sensors } from './sensors'
-export { DebugConsumer, LoggingConsumer, DebugOption } from './consumer'
+export { DebugConsumer, LoggingConsumer, DebugOption, NWOption, NWConsumer } from './consumer'
